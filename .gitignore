@@ -2,6 +2,7 @@
 1a_Docker_SQL/.ipynb_checkpoints/
 1a_Docker_SQL/config/
 1b_Terraform/keys/
+1c_Homework/ny_taxi_postgres_data/
 
 # Local .terraform directories
 **/.terraform/*
