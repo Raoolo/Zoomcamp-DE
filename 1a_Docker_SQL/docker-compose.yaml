@@ -1,0 +1,66 @@
+# we don't need to explicitly specify a network but we could if we wanted to
+# "" are used for mappings generally or if there are spaces/special characters in the name
+
+# Docker knows where to find the images because:
+# a) If they're not on your local machine, Docker will pull them from Docker Hub.
+# b) If you've run them before, they might already be cached on your local machine.
+
+# Pipeline of where things are taken:
+# a) Docker Compose reads the YAML file.
+# b) It creates a default network if not specified.
+# c) For each service, it checks if the image exists locally.
+# d) If not local, it pulls the image from Docker Hub.
+# e) It creates containers based on these images, attaching them to the network.
+# f) It sets up volumes, environment variables, and port mappings as specified.
+# g) It starts the containers.
+
+services: 
+  # PostgreSQL Database service
+  pgdatabase:
+    image: postgres:13
+    # environment variables
+    environment:
+      - POSTGRES_USER=root 
+      - POSTGRES_PASSWORD=root
+      - POSTGRES_DB=ny_taxi
+    volumes:
+      # mount the volume, rw means read and write it does not need to be specified
+      - "./ny_taxi_postgres_data:/var/lib/postgresql/data:rw"
+    ports:
+      # expose port 5432 on the host and map it to port 5432 on the container
+      - "5432:5432"
+
+  # pgAdmin service
+  pgadmin:
+    image: dpage/pgadmin4
+    ports:
+      # expose port 8080 on the host and map it to port 80 on the container
+      - "8080:80"
+    environment:
+      # environment variables for pgAdmin
+      - PGADMIN_DEFAULT_EMAIL=admin@admin.com
+      - PGADMIN_DEFAULT_PASSWORD=password
+    volumes:
+      # makes the database persistent
+      - "./config/pgadmin-config:/var/lib/pgadmin:rw"
+
+  # I'll comment this to avoid pushing data everytime since it's a large file
+  taxi_ingestor:
+    # could be used instead of image
+    build:    # build is useful if we change the Dockerfile and want to rebuild the image
+      context: .    # use the current directory
+      dockerfile: Dockerfile  # use the Dockerfile in the current directory
+    # image:
+    #   taxi_ingest:v001
+    depends_on: 
+      - pgdatabase  # wait for the pgdatabase service to start
+    command: >    # multi-line command, command is used to override the default entrypoint and give arguments to the script
+      --user=root
+      --password=root
+      --host=pgdatabase
+      --port=5432
+      --db=ny_taxi
+      --data_table_name=yellow_taxi_trips
+      --lookup_table_name=zones
+      --data_url="https://d37ci6vzurychx.cloudfront.net/trip-data/yellow_tripdata_2021-01.parquet"
+      --lookup_url="https://d37ci6vzurychx.cloudfront.net/misc/taxi+_zone_lookup.csv"
