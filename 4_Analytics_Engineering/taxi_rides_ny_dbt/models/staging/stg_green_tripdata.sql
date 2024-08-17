@@ -11,6 +11,7 @@ with tripdata as (
 )
 select
     -- identifiers
+            -- good practice to put it at the top to see the granularity
     {{ dbt_utils.generate_surrogate_key(['vendorid', 'lpep_pickup_datetime']) }} as tripid,
     {{ dbt.safe_cast("vendorid", api.Column.translate_type("integer")) }} as vendorid,
     {{ dbt.safe_cast("ratecodeid", api.Column.translate_type("integer")) }} as ratecodeid,
@@ -49,7 +50,7 @@ where rn = 1
 
 -- If the model is being run as a test, limit the number of rows returned to 100.
 -- dbt build --select <model_name> --vars '{'is_test_run': 'false'}'
-{% if var("is_test_run", default=true) %} 
 -- call the variable is_test_run and it's adding a default value=true if nothing is passed
-    limit 100 
+{% if var("is_test_run", default=true) %} 
+    limit 100
 {% endif %}
