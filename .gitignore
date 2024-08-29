@@ -46,3 +46,6 @@ crash.*.log
 *.pem
 *.key
 *.pub
+
+5_Batch/fhvhv_tripdata_2021-01.parquet
+5_Batch/fhvhv/
