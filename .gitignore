@@ -1,5 +1,5 @@
 1a_Docker_SQL/ny_taxi_postgres_data/
-1a_Docker_SQL/.ipynb_checkpoints/
+*/.ipynb_checkpoints/
 1a_Docker_SQL/config/
 1b_Terraform/keys/
 1c_Homework/ny_taxi_postgres_data/
